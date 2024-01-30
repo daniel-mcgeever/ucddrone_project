@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Project List - UCD Drone{% endblock %}
+
+{% block content %}
+    <h1>Projects</h1>
+    <div class="container">
+        <div class="row">
+            {% for project in projects %}
+                <div class="col-lg-3 col-md-6 col-sm-12 mb-4"> <!-- 4 columns on lg, 2 on md, 1 on sm -->
+                    <a href="{% url 'project_detail' project.id %}" class="text-decoration-none text-dark">
+                        <div class="card h-100">
+                            {% if project.thumbnail %}
+                                <img src="{{ project.thumbnail.url }}" alt="{{ project.name }}" class="card-img-top">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ project.name }}</h5>
+                                <p class="card-text">Date: {{ project.date }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

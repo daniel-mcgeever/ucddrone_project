@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Maps</title>
+    <!-- Dropzone CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.css" rel="stylesheet">
+</head>
+<body>
+
+<h1>Upload Maps for {{ project.name }}</h1>
+
+<!-- Dropzone Form -->
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="zip_file" accept=".zip" required>
+    <button type="submit">Upload</button>
+</form>
+
+
+<!-- Dropzone JS -->
+<script src="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.js"></script>
+<script>
+    Dropzone.options.mapUploadDropzone = {
+        paramName: "file", // The name that will be used to transfer the file
+        maxFilesize: 2, // MB
+        dictDefaultMessage: "Drag files here to upload (or click)",
+        init: function () {
+            // this.hiddenFileInput.setAttribute("webkitdirectory", true);
+            this.on("success", function (file, response) {
+                // Handle successful response
+            });
+            this.on("error", function (file, response) {
+                // Handle error response
+            });
+        }
+    };
+</script>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+{% load static %}
+
+<html>                         
+    <head>                         
+        <!-- Bootstrap CSS -->
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap JS, Popper.js, and jQuery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.5/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+        <!-- CSS Style Sheet -->
+        <link rel="stylesheet" href="{% static 'projects/style.css' %}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+
+
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />                                     
+        <title></title>                                     
+        <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false&key=AIzaSyAK5R6J1yg5R1cpOG0qfJ23nXh7tNGuZBg"></script>                                     
+        <script>                                         
+            var map;   
+            var overlayList = {}; 
+            var overlayQueue = [];
+            var processingQueue = false;
+                                             
+            var mapBounds = new google.maps.LatLngBounds(                                             
+                new google.maps.LatLng(53.302999051543807,-6.227385321384242),                                             
+                new google.maps.LatLng(53.306172666325566,-6.220215029692175)
+            );                                         
+            var mapMinZoom =15;                                         
+            var mapMaxZoom =21;         
+            
+            function processOverlayQueue() {
+                if (overlayQueue.length === 0) {
+                    processingQueue = false;
+                    return;
+                }
+
+                processingQueue = true;
+                var operation = overlayQueue.shift();
+
+                if (operation.type === 'add') {
+                    console.log("made it to the add queue")
+                    var overlay = createOverlay(operation.mapId);
+                    map.overlayMapTypes.insertAt(0, overlay);
+                } else if (operation.type === 'remove') {
+                    console.log("made it to the remove queue")
+                    removeOverlay(operation.mapId);
+                }
+
+                // Process next operation after a small delay
+                setTimeout(processOverlayQueue, 100);
+            }
+
+            function queueOverlayOperation(type, mapId) {
+                overlayQueue.push({ type: type, mapId: mapId });
+
+                if (!processingQueue) {
+                    processOverlayQueue();
+                }
+            }
+
+            function createOverlay(mapId){                                             
+                var pix4tiler = new google.maps.ImageMapType({                                                                                         
+                    getTileUrl: function(coord, zoom) { 
+                        var bucket_root = "https://storage.googleapis.com/www.ucddrone.com"
+                        var project_id = "{{ project.id }}"; 
+                        var project_id_no_dashes = project_id.replace(/-/g, '');                                                                                  
+                        var proj = map.getProjection();                                             
+                        var tileSize = 256 / Math.pow(2,zoom);                        
+                        var tileBounds = new google.maps.LatLngBounds(                                                 
+                            proj.fromPointToLatLng(new google.maps.Point(coord.x*tileSize, (coord.y+1)*tileSize)),                                                 
+                            proj.fromPointToLatLng(new google.maps.Point((coord.x+1)*tileSize, coord.y*tileSize))                                               
+                            );                        
+                        if (mapBounds.intersects(tileBounds) && (zoom >= mapMinZoom) && (zoom <= mapMaxZoom))                                
+                            return bucket_root + "/" + project_id_no_dashes + "/maps/" + mapId + "/" + zoom + "/" + coord.x + "/" + (Math.pow(2,zoom)-coord.y-1) + ".png";                                                
+                        else                                                
+                            return "http://none.png";                
+                    },        
+                    tileSize: new google.maps.Size(256, 256),                                
+                    isPng: true,                        
+                    // opacity: parseFloat(percent)/100.0        
+                });
+                overlayList[mapId] = pix4tiler;                
+                return pix4tiler;        
+            }   
+
+            function removeOverlay(mapId) {
+                if (overlayList[mapId]) {
+                    var overlayIndex = map.overlayMapTypes.getArray().indexOf(overlayList[mapId]);
+                    while (overlayIndex > -1) {
+                        map.overlayMapTypes.removeAt(overlayIndex);
+                        overlayIndex = map.overlayMapTypes.getArray().indexOf(overlayList[mapId]);
+                    }
+                    delete overlayList[mapId]; // Remove from the global list
+                }
+            }
+
+            // Debounce function
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this, args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+            
+            // Wait for the entire DOM to be loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                // Function to attach event listeners to checkboxes
+                function attachMapToggleListeners() {
+                    document.querySelectorAll('.map-toggle').forEach(function(checkbox) {
+                        checkbox.addEventListener('change', debounce(function() {
+                            var mapId = this.getAttribute('data-map-id');
+                            var map_id_no_dashes = mapId.replace(/-/g, ''); 
+
+                            if (this.checked) {
+                                // Clear existing overlays first
+                                removeOverlay(map_id_no_dashes);
+
+                                // Check if overlay already exists to avoid duplicates
+                                if (!overlayList[map_id_no_dashes]) {
+                                    var overlay = createOverlay(map_id_no_dashes);
+                                    overlayList[map_id_no_dashes] = overlay; // Store in global list
+                                    map.overlayMapTypes.insertAt(0, overlay);
+                                }
+                            } else {
+                                removeOverlay(map_id_no_dashes);
+                            }
+                        }, 250)); // 250ms debounce time
+                    });
+                }
+
+                // Attach listeners when modal is shown
+                $('#mapsModal').on('shown.bs.modal', function () {
+                    attachMapToggleListeners();
+                });
+
+            });
+     
+            function initialize() {                
+                var myOptions = {                        
+                    minZoom: 15,                        
+                    maxZoom: 21,                        
+                    mapTypeId: google.maps.MapTypeId.SATELLITE,                        
+                    streetViewControl:false,
+                    mapTypeControl:false     
+                };                
+                map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);                                                                      
+                map.fitBounds(mapBounds);                                          
+                // var pix4tiler = createOverlay('100');                      
+                // map.overlayMapTypes.insertAt(0, pix4tiler);                
+       
+            }        
+        </script>        
+    </head>        
+    <body style="margin:0px; padding:0px;" onload="initialize()">  
+        <input type="checkbox" id="check">
+        <label for="check">
+        <i class="fas fa-bars" id="btn"></i>
+        <i class="fas fa-times" id="cancel"></i>
+        </label>
+        <div class="sidebar">
+        <header>My App</header>
+        
+        <ul>
+            <li><a href="{% url 'project_list' %}"><i class="fas fa-qrcode"></i>Project List</a></li>
+            <li><a href="#" data-toggle="modal" data-target="#mapsModal"><i class="fas fa-stream"></i>View Maps</a></li>
+            <!-- <li><a href="#"><i class="fas fa-stream"></i>Overview</a></li>
+            <li><a href="#"><i class="fas fa-calendar-week"></i>Events</a></li>
+            <li><a href="#"><i class="far fa-question-circle"></i>About</a></li>
+            <li><a href="#"><i class="fas fa-sliders-h"></i>Services</a></li>
+            <li><a href="#"><i class="far fa-envelope"></i>Contact</a></li> -->
+        </ul>
+    </div>
+        <div id="map_canvas" style="width:100%; height:100%">
+            
+        </div>    
+        
+
+    <!-- Modal for displaying maps -->
+    <div class="modal fade" id="mapsModal" tabindex="-1" role="dialog" aria-labelledby="mapsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mapsModalLabel">{{ project.name }} Maps</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% for map in maps %}
+                        <!-- Example: Display map date -->
+                        <div class="map-item">
+                            <input type="checkbox" class="map-toggle" id="map{{ map.id }}" data-map-id="{{ map.id }}">
+                            <label for="map{{ map.id }}">{{ map.date }}</label>
+                        </div>
+                    {% empty %}
+                        <p>No maps available for this project.</p>
+                    {% endfor %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>      
+                          
+    </body>                              
+</html>                               
+
+
+
