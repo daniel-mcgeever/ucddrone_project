@@ -15,7 +15,7 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1#8@2d6iu&h=y7g0dfq64n&-ka+wh0assy=c!!24ig1z-8kk_w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['35.197.230.249', 'ucddrone.com', 'www.ucddrone.com']
 
 
 # Application definition
@@ -133,10 +133,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'accounts:login'
 
-# GS_BUCKET_NAME = 'www.ucddrone.com'
-# STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-# DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-# GS_DEFAULT_ACL = 'publicRead'
+GS_BUCKET_NAME = 'www.ucddrone.com'
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_DEFAULT_ACL = 'publicRead'
 
-# STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
-# MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'
+STATIC_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/static/'
+MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/media/'

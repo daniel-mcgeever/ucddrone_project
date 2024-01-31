@@ -13,7 +13,7 @@ class Project(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateField()
     labels = models.ManyToManyField(Label)
-    thumbnail = models.ImageField(upload_to='thumbnails/')
+    thumbnail = models.ImageField(upload_to='projects/thumbnails/')
 
     def __str__(self):
         return self.name
