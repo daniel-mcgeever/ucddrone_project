@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import os
+from google.cloud import storage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-1#8@2d6iu&h=y7g0dfq64n&-ka+wh0assy=c!!24ig1z-8kk_w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['35.197.230.249', 'ucddrone.com', 'www.ucddrone.com']
+ALLOWED_HOSTS = ['127.0.0.1', '35.197.230.249', 'ucddrone.com', 'www.ucddrone.com']
 
 
 # Application definition
@@ -132,6 +133,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'accounts:login'
+
+GOOGLE_CLOUD_STORAGE_BUCKET_NAME = 'www.ucddrone.com'
 
 GS_BUCKET_NAME = 'www.ucddrone.com'
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'

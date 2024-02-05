@@ -1,0 +1,51 @@
+<!-- project_map_list.html -->
+
+{% extends "base.html" %}
+
+{% block extra_head %}
+
+<link href="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block title %}Maps for {{ project.name }}{% endblock %}
+
+{% block content %}
+    <div>
+        <div>
+            <h1>Maps for {{ project.name }}</h1>
+        </div>
+        <div class="text-end"> <!-- Align content to the right -->
+            <a href="{% url 'upload_map' project_id=project.id %}" class="btn btn-primary">Add</a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Date</th>
+                <th scope="col">Description</th>
+                <th scope="col">Overlay URL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for map in maps %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ map.date }}</td>
+                    <td>{{ map.description }}</td>
+                    <td>
+                        {% if map.gcs_url %}
+                            <a href="{{ map.gcs_url }}" target="_blank">Here</a>
+                        {% else %}
+                            
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+{% endblock %}

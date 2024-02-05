@@ -1,42 +1,35 @@
-{% load static %}
+<!-- projects/add_maps.html -->
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Upload Maps</title>
-    <!-- Dropzone CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.css" rel="stylesheet">
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Upload Maps for {{ project.name }}</h1>
+{% block extra_head %}
+<!-- Include jQuery library -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Dropzone Form -->
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" name="zip_file" accept=".zip" required>
-    <button type="submit">Upload</button>
-</form>
+<!-- Include jQuery UI library -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
+{% endblock %}
 
-<!-- Dropzone JS -->
-<script src="https://cdn.jsdelivr.net/npm/dropzone@5.7.0/dist/min/dropzone.min.js"></script>
+{% block title %}Add Map - UCD Drone{% endblock %}
+
+{% block content %}
+<div class="container mt-5"> <!-- Center the form in the middle of the page -->
+    <h1>Add Map</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }} <!-- Render the form fields as paragraphs for simplicity -->
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<!-- Datepicker initialization script -->
 <script>
-    Dropzone.options.mapUploadDropzone = {
-        paramName: "file", // The name that will be used to transfer the file
-        maxFilesize: 2, // MB
-        dictDefaultMessage: "Drag files here to upload (or click)",
-        init: function () {
-            // this.hiddenFileInput.setAttribute("webkitdirectory", true);
-            this.on("success", function (file, response) {
-                // Handle successful response
-            });
-            this.on("error", function (file, response) {
-                // Handle error response
-            });
-        }
-    };
+    $(document).ready(function() {
+        // Initialize the date picker
+        $(".datepicker").datepicker();
+    });
 </script>
 
-</body>
-</html>
+{% endblock %}

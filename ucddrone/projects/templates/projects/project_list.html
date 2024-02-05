@@ -3,22 +3,38 @@
 {% block title %}Project List - UCD Drone{% endblock %}
 
 {% block content %}
+    
     <h1>Projects</h1>
     <div class="container">
+        <div class="text-end"> <!-- Align content to the right -->
+            <a href="{% url 'create_project' %}" class="btn btn-primary">Add</a>
+        </div>
         <div class="row">
             {% for project in projects %}
                 <div class="col-lg-3 col-md-6 col-sm-12 mb-4"> <!-- 4 columns on lg, 2 on md, 1 on sm -->
-                    <a href="{% url 'project_detail' project.id %}" class="text-decoration-none text-dark">
                         <div class="card h-100">
                             {% if project.thumbnail %}
                                 <img src="{{ project.thumbnail.url }}" alt="{{ project.name }}" class="card-img-top">
                             {% endif %}
                             <div class="card-body">
-                                <h5 class="card-title">{{ project.name }}</h5>
-                                <p class="card-text">Date: {{ project.date }}</p>
+                                <a href="{% url 'project_detail' project.id %}" class="text-decoration-none text-dark">
+
+                                    <div>
+                                        <h5 class="card-title">{{ project.name }}</h5>
+                                        <p class="card-text">Date: {{ project.date }}</p>
+                                    </div>
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-link p-0 dropdown-toggle card-dropdown-button" type="button" id="dropdownMenuButton{{ project.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu card-dropdown-menu" aria-labelledby="dropdownMenuButton{{ project.id }}">
+                                        <li><a class="dropdown-item" href="{% url 'project_map_list' project.id %}">View Maps</a></li>
+                                        <!-- <li><a class="dropdown-item" href="#">Action 2</a></li> -->
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </a>
                 </div>
             {% endfor %}
         </div>
