@@ -26,7 +26,7 @@ def project_list(request):
 
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    maps = project.maps.all()
+    maps = project.maps.all().order_by('-date')
 
     return render(request, 'projects/project_detail.html', {'project': project, 'maps': maps})
 
