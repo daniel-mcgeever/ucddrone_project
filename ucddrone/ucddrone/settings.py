@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'accounts',
     'projects',
     'storages',
+    'guardian',
 ]
 
 MIDDLEWARE = [
@@ -108,6 +109,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # default model backend
+    'guardian.backends.ObjectPermissionBackend',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
