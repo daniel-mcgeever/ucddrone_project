@@ -8,6 +8,8 @@ import zipfile, os
 from django.http import HttpResponse
 from django.conf import settings
 from google.cloud import storage
+from guardian.shortcuts import get_objects_for_user
+from django.contrib.auth.models import User
 
 def create_project(request):
     if request.method == 'POST':
@@ -21,7 +23,9 @@ def create_project(request):
     return render(request, 'projects/create_project.html', {'form': form})
 
 def project_list(request):
-    projects = Project.objects.all()
+
+    projects = get_objects_for_user(request.user, 'projects.view_project', klass=Project)
+
     return render(request, 'projects/project_list.html', {'projects': projects})
 
 def project_detail(request, project_id):
